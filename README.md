@@ -1,4 +1,4 @@
-# Zalloc
+# ZSAL
 ## Purpose
 This is a small library with allocators for different purposes designed to be used in the context of a kernel.
 ## Features:
