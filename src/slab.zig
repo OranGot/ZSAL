@@ -32,7 +32,7 @@ pub const Cache = struct {
     inline fn pre_init_slab(self: *Cache) void {
         var c_ptr = self.empty_slab_list.getLast().start;
         const high = c_ptr + PAGE_SIZE * self.pages_per_slab;
-        std.log.warn("c_ptr = {x}, high = {x}, size full = {x}\n", .{ c_ptr, high, self.size_full });
+        // std.log.warn("c_ptr = {x}, high = {x}, size full = {x}\n", .{ c_ptr, high, self.size_full });
         while (c_ptr < high) : (c_ptr += self.size_full) {
             @memcpy(@as([*]u8, @ptrFromInt(c_ptr))[0..self.obj_size], self.default_val[0..self.obj_size]);
             const md_ptr = @as(*ObjectMd, @ptrFromInt(c_ptr + self.obj_size));
