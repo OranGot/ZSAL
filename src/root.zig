@@ -2,6 +2,7 @@ const std = @import("std");
 pub const log_level: std.log.Level = .debug;
 pub const buddy = @import("buddy.zig");
 pub const slab = @import("slab.zig");
+pub const bump = @import("bump.zig");
 test "Buddy test" {
     const r = [_]buddy.Restrict{buddy.Restrict{ .addr = 0, .len = 0x1000 }};
     const alloc = std.heap.page_allocator;
