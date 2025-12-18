@@ -6,7 +6,6 @@ pub const Restrict = struct {
     addr: usize,
 };
 pub const Input = struct {
-    restricted_addresses: []Restrict,
     pre_reserved_pages_base: usize,
     pre_reserved_pages_high: usize,
     memsize: usize,
@@ -25,12 +24,15 @@ pub const BuddyContext = struct {
     layers: u16,
     bmp: [][]BitmapEntry,
     ///Pages provided are assumed to be already set to 0
-    pub fn setup(in: Input) !*BuddyContext {
-        var allocator = bump.BumpCtx.setup(in.pre_reserved_pages_base, in.pre_reserved_pages_high);
+    pub fn setup(
+        allocator: *bump.BumpCtx,
+        memsize: usize,
+        page_size: usize,
+    ) !*BuddyContext {
         const ctx: *BuddyContext = @ptrFromInt(try allocator.alloc(@sizeOf(BuddyContext)));
-        const layer_count = std.math.log2_int_ceil(usize, (in.memsize / in.page_size)) + 1;
-        ctx.memsize = in.memsize;
-        ctx.page_size = in.page_size;
+        const layer_count = std.math.log2_int_ceil(usize, (memsize / page_size)) + 1;
+        ctx.memsize = memsize;
+        ctx.page_size = page_size;
         ctx.layers = layer_count;
 
         ctx.bmp = @as([*][]BitmapEntry, @ptrFromInt(try allocator.alloc(layer_count * @sizeOf([*]BitmapEntry))))[0..layer_count];
@@ -39,14 +41,11 @@ pub const BuddyContext = struct {
             ctx.bmp[i] = al[0 .. @as(usize, @intCast(2)) << @truncate(layer_count - i)];
             @memset(ctx.bmp[i][0 .. @as(usize, @intCast(2)) << @truncate(layer_count - i)], BitmapEntry{ .restricted = false, .unused = 0, .used = false, .allocation_origin = false });
         }
-        for (in.restricted_addresses) |e| {
-            // std.log.warn("reserving: {any}\n", .{e});
-            try ctx.reserve_address(e.addr, e.len / in.page_size, true);
-        }
+
         const first_layer_size = @as(usize, @intCast(1)) << @truncate(layer_count);
-        const pages_to_reserve = first_layer_size - (in.memsize) / in.page_size;
+        const pages_to_reserve = first_layer_size - (memsize) / page_size;
         // std.log.warn("first layer size: {x}, memsize: {x}, pageno: {}\n", .{ first_layer_size, in.memsize / in.page_size, pages_to_reserve });
-        try ctx.reserve_address(in.memsize, pages_to_reserve, true);
+        try ctx.reserve_address(memsize, pages_to_reserve, true);
         return ctx;
     }
     pub fn reserve_address(self: *BuddyContext, address: usize, pageno: usize, restricted: bool) !void {

@@ -4,11 +4,10 @@ pub const buddy = @import("buddy.zig");
 pub const slab = @import("slab.zig");
 pub const bump = @import("bump.zig");
 test "Buddy test" {
-    const r = [_]buddy.Restrict{buddy.Restrict{ .addr = 0, .len = 0x1000 }};
     const alloc = std.heap.page_allocator;
     const base = @intFromPtr((try alloc.alloc(u8, 0x1000 * 256)).ptr);
-
-    const ctx = try buddy.BuddyContext.setup(.{ .page_size = 0x1000, .memsize = 0x1000000, .pre_reserved_pages_base = base, .pre_reserved_pages_high = base + 0x1000 * 256, .restricted_addresses = @constCast(&r) });
+    var ba = bump.BumpCtx.setup(base, base + 0x1000 * 256);
+    const ctx = try buddy.BuddyContext.setup(&ba, 0x1000000, 0x1000);
     const a1 = try ctx.alloc(1);
     std.log.warn("res: {any}\n\n{any}\n", .{ ctx.bmp[0][0..8], ctx.bmp[1][0..8] });
     std.log.warn("\nALLOCATION 1: {x}:{x}\n", .{ a1, a1 + 0x1000 });
