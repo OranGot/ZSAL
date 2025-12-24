@@ -49,8 +49,9 @@ pub const BuddyContext = struct {
         return ctx;
     }
     pub fn reserve_address(self: *BuddyContext, address: usize, pageno: usize, restricted: bool) !void {
-        const p_2 = std.math.log2_int_ceil(usize, pageno);
+        const p_2 = std.math.log2_int(usize, pageno);
         const size = @as(usize, @intCast(1)) << @truncate(p_2);
+        // std.debug.print("p-2: {}, e: {}", .{ p_2, address / (size * self.page_size) });
         if (self.bmp[p_2][address / (size * self.page_size)].restricted == true) return error.CantEditAlreadyReserved;
         self.bmp[p_2][address / (size * self.page_size)].restricted = restricted;
         self.bmp[p_2][address / (size * self.page_size)].used = true;

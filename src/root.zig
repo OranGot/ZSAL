@@ -5,9 +5,9 @@ pub const slab = @import("slab.zig");
 pub const bump = @import("bump.zig");
 test "Buddy test" {
     const alloc = std.heap.page_allocator;
-    const base = @intFromPtr((try alloc.alloc(u8, 0x1000 * 256)).ptr);
-    var ba = bump.BumpCtx.setup(base, base + 0x1000 * 256);
-    const ctx = try buddy.BuddyContext.setup(&ba, 0x1000000, 0x1000);
+    const base = @intFromPtr((try alloc.alloc(u8, 0x1000 * 1024)).ptr);
+    var ba = bump.BumpCtx.setup(base, base + 0x1000 * 1024);
+    const ctx = try buddy.BuddyContext.setup(&ba, 0x37d8000, 0x1000);
     const a1 = try ctx.alloc(1);
     std.log.warn("res: {any}\n\n{any}\n", .{ ctx.bmp[0][0..8], ctx.bmp[1][0..8] });
     std.log.warn("\nALLOCATION 1: {x}:{x}\n", .{ a1, a1 + 0x1000 });
@@ -15,11 +15,6 @@ test "Buddy test" {
     std.log.warn("res: {any}\n\n{any}\n", .{ ctx.bmp[0][0..8], ctx.bmp[1][0..8] });
     const a2 = try ctx.alloc(128);
     std.log.warn("\nALLOCATION 2: {x}:{x}\n", .{ a2, a2 + 0x1000 * 128 });
-    // const a3 = try ctx.alloc(300);
-    // ctx.free(a3);
-    // std.log.warn("\nALLOCATION 3: {x}:{x}\n", .{ a3, a3 + 0x1000 * 300 });
-    // const a4 = try ctx.alloc(1);
-    // std.log.warn("\nALLOCATION 4: {x}:{x}\n", .{ a4, a4 + 0x1000 });
 }
 const SomeRandomStruct = struct {
     f1: u32 = 9193202,
