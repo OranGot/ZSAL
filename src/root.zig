@@ -7,7 +7,7 @@ test "Buddy test" {
     const alloc = std.heap.page_allocator;
     const base = @intFromPtr((try alloc.alloc(u8, 0x1000 * 1024)).ptr);
     var ba = bump.BumpCtx.setup(base, base + 0x1000 * 1024);
-    const ctx = try buddy.BuddyContext.setup(&ba, 0x37d8000, 0x1000);
+    const ctx = try buddy.BuddyContext.setup(&ba, 0x322a2000, 0x1000);
     const a1 = try ctx.alloc(1);
     std.log.warn("res: {any}\n\n{any}\n", .{ ctx.bmp[0][0..8], ctx.bmp[1][0..8] });
     std.log.warn("\nALLOCATION 1: {x}:{x}\n", .{ a1, a1 + 0x1000 });

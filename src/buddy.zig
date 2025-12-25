@@ -29,12 +29,12 @@ pub const BuddyContext = struct {
         memsize: usize,
         page_size: usize,
     ) !*BuddyContext {
+        if (memsize < page_size) return error.MemsizeLessThanAPage;
         const ctx: *BuddyContext = @ptrFromInt(try allocator.alloc(@sizeOf(BuddyContext)));
-        const layer_count = std.math.log2_int_ceil(usize, (memsize / page_size)) + 1;
+        const layer_count = @as(u16, @intCast(std.math.log2_int_ceil(usize, (memsize / page_size)) + 1));
         ctx.memsize = memsize;
         ctx.page_size = page_size;
         ctx.layers = layer_count;
-
         ctx.bmp = @as([*][]BitmapEntry, @ptrFromInt(try allocator.alloc(layer_count * @sizeOf([*]BitmapEntry))))[0..layer_count];
         for (0..layer_count) |i| {
             const al: [*]BitmapEntry = @ptrFromInt(try allocator.alloc(@as(usize, @intCast(2)) << @truncate(layer_count - i)));
