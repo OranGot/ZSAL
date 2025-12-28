@@ -68,6 +68,7 @@ pub const BuddyContext = struct {
     }
 
     pub fn alloc(self: *BuddyContext, pageno: usize) !usize {
+        if (pageno > self.memsize / self.page_size) return error.OutOfMemory;
         const layer_to_search = std.math.log2_int_ceil(usize, pageno);
         // std.log.warn("size of power of 2: {} allocation is {x}", .{ layer_to_search, (@as(usize, @intCast(2)) << @truncate(self.layers - layer_to_search)) });
         ol: for (0..(@as(usize, @intCast(2)) << @truncate(self.layers - layer_to_search))) |i| {
