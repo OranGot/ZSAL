@@ -117,7 +117,6 @@ pub const BuddyContext = struct {
         return self.alloc_flags(pageno, BitmapEntry{ .allocation_origin = false, .restricted = false, .special = false, .unused = 0, .used = true });
     }
     fn alloc_special_pages(self: *BuddyContext, pageno: ?usize) !usize {
-        if (self.cur_cont_pages_free != 0) std.log.warn("wasted continious pages {}\n", .{self.cur_cont_pages_free});
         const pages = if (pageno) |p| p else self.min_cont_pages_free;
         const r = try self.alloc_flags(pages, BitmapEntry{ .allocation_origin = false, .restricted = false, .special = true, .unused = 0, .used = true });
         // std.log.warn("r: {x}\n", .{r});
