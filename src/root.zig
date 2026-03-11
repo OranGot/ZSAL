@@ -39,3 +39,11 @@ test "Slab Test" {
     std.log.warn("allocation: {*}, {any}, expected: {any}\n", .{ c, c, SomeRandomStruct{} });
     ctx.free(c);
 }
+test "Bump interface test" {
+    const alloc = std.heap.page_allocator;
+    const base = @intFromPtr((try alloc.alloc(u8, 0x1000 * 128)).ptr);
+    var ba = bump.BumpCtx.setup(base, base + 0x1000 * 128);
+    const allocator = ba.allocator();
+    const buf = try allocator.alloc(u8, 128);
+    @memset(buf, 255);
+}
